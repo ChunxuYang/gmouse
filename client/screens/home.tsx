@@ -7,6 +7,8 @@ import { BatchType } from "../types/data-type";
 import model from "../utils/knn";
 import useIMU from "../utils/sensors";
 
+import Connect from "../components/connect";
+
 export default function HomeScreen() {
   const { sampleSets } = useSampleContext();
   const [recording, setRecording] = React.useState(false);
@@ -49,6 +51,10 @@ export default function HomeScreen() {
     }, 100);
   }
 
+  function handleBarCodeScanned({ type, data }) {
+    alert(`Bar code with type ${type} and data ${data} has been scanned!`);
+  }
+
   return (
     <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
       <TouchableOpacity
@@ -81,6 +87,8 @@ export default function HomeScreen() {
           {recording ? "Stop" : "Start"}
         </Text>
       </TouchableOpacity>
+
+      <Connect />
 
       <Text>{prediction === null ? "No prediction yet" : prediction}</Text>
     </View>
