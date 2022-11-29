@@ -25,15 +25,19 @@ export default function Connect() {
     alert(`Bar code with type ${type} and data ${data} has been scanned!`);
 
     // try connecting to socketio
-    const socket_address =
-      data.replace("exp://", "ws://").split(":")[-1] + ":5123";
+    const socket_address = data
+      .replace("exp://", "http://")
+      .replace(":19000", ":5124");
+
+    console.log(socket_address);
 
     const socket = io(socket_address, {
       transports: ["websocket"],
+      rejectUnauthorized: false,
     });
 
-    socket.io.on("error", (err) => {
-      console.log(err);
+    socket.io.on("error", (error) => {
+      console.log(error);
       socket.close();
     });
 

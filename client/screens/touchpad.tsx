@@ -2,6 +2,7 @@ import * as React from "react";
 import { View, Text, StyleSheet } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
+import { useConnectionContext } from "../contexts/connection-context";
 
 export default function TouchpadScreen() {
   const [currentCursor, setCurrentCursor] = React.useState({
@@ -9,11 +10,23 @@ export default function TouchpadScreen() {
     y: 0,
   });
 
+  const { socket } = useConnectionContext();
+
+  function emitOperation(operation: string, data?: any) {
+    if (socket !== null && socket.connected) {
+      socket.emit("operation", {
+        type: operation,
+        data,
+      });
+    }
+  }
+
   const singleTap = Gesture.Tap()
     .maxDistance(10)
     .onEnd((e) => {
       const fingers = e.numberOfPointers;
-      console.log("Single tap with " + fingers + " fingers");
+
+      emitOperation("tap");
     });
 
   const pan = Gesture.Pan()
@@ -24,27 +37,34 @@ export default function TouchpadScreen() {
         x: translationX,
         y: translationY,
       });
+
+      // send data every 100ms
+
+      emitOperation("move", {
+        x: translationX,
+        y: translationY,
+      });
     });
 
   const doublePan = Gesture.Pan()
     .minPointers(2)
     .maxPointers(2)
-    .onEnd((e) => {
+    .onUpdate((e) => {
       // determin up, down, left, right
       const { translationX, translationY } = e;
       if (Math.abs(translationX) > Math.abs(translationY)) {
         if (translationX > 0) {
-          console.log("Right");
+          emitOperation("scroll-right");
         } else {
-          console.log("Left");
+          emitOperation("scroll-left");
         }
       }
 
       if (Math.abs(translationX) < Math.abs(translationY)) {
         if (translationY > 0) {
-          console.log("Down");
+          emitOperation("scroll-down");
         } else {
-          console.log("Up");
+          emitOperation("scroll-up");
         }
       }
     });
