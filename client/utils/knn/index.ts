@@ -29,9 +29,14 @@ class KNN {
     if (data.length > 100) {
       return data.slice(0, 100);
     }
-    const paddingData = new Array(100 - data.length).fill(
-      data[data.length - 1]
-    );
+    const paddingData = new Array(100 - data.length).fill({
+      ax: 0,
+      ay: 0,
+      az: 0,
+      gx: 0,
+      gy: 0,
+      gz: 0,
+    });
     return data.concat(paddingData);
   }
 

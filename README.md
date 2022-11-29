@@ -13,14 +13,14 @@ Install the Expo Go app on your iPhone/Android.
 Run the install command in the project folder.
 
 ```bash
-# in project folder
+cd client
 npm i --legacy-peer-deps
 ```
 
 Run the start command from the project folder
 
 ```bash
-# in project folder
+cd client
 npx expo start
 ```
 
