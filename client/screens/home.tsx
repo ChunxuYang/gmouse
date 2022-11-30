@@ -7,13 +7,17 @@ import { BatchType } from "../types/data-type";
 import { Picker } from "@react-native-picker/picker";
 import model from "../utils/knn";
 import useIMU from "../utils/sensors";
+import useDeviceMotion from "../utils/sensors/device-motion";
 
 import Connect from "../components/connect";
+import { useConnectionContext } from "../contexts/connection-context";
 
 export default function HomeScreen() {
   const { sampleSets } = useSampleContext();
   const [recording, setRecording] = React.useState(false);
+
   const [imuData, setImuData] = React.useState<BatchType>([]);
+  const [deviceMotionData, setDeviceMotionData] = React.useState<any>();
 
   const [prediction, setPrediction] = React.useState<string>("");
 
@@ -22,13 +26,53 @@ export default function HomeScreen() {
     value: number;
   }>(DELAY_OPERATIONS[0]);
 
+  const { socket } = useConnectionContext();
+
+  function emitOperation(operation: string, data?: any) {
+    if (socket !== null && socket.connected) {
+      socket.emit("operation", {
+        type: operation,
+        data,
+      });
+    }
+  }
+
   const { data, startSubscription, stopSubscription } = useIMU();
+  const { pointing, setOriginalPointing, startDeviceMotion, stopDeviceMotion } =
+    useDeviceMotion();
 
   React.useEffect(() => {
     if (sampleSets.length > 0) {
       model.refreshAllClasses(sampleSets);
     }
   }, [sampleSets]);
+
+  React.useEffect(() => {
+    startDeviceMotion();
+    return () => {
+      stopDeviceMotion();
+    };
+  }, []);
+
+  React.useEffect(() => {
+    const { alpha, beta } = pointing;
+    // the device is facing the ceiling, pointing to a screen
+    // we need to use these values to let the device control the cursor on the screen
+    // the device is facing the ceiling, pointing to a screen
+    const MAX_ALPHA = Math.PI / 4;
+    const MIN_ALPHA = -Math.PI / 4;
+
+    const MAX_BETA = Math.PI / 4;
+    const MIN_BETA = -Math.PI / 4;
+
+    const x = (alpha - MIN_ALPHA) / (MAX_ALPHA - MIN_ALPHA);
+    const y = (beta - MIN_BETA) / (MAX_BETA - MIN_BETA);
+
+    emitOperation("moveTo", {
+      x,
+      y,
+    });
+  }, [pointing]);
 
   async function stopRecording() {
     setRecording(false);
@@ -91,6 +135,32 @@ export default function HomeScreen() {
           }}
         >
           {recording ? "Stop" : "Start"}
+        </Text>
+      </TouchableOpacity>
+
+      <TouchableOpacity
+        style={{
+          width: 100,
+          height: 50,
+          borderRadius: 10,
+          marginTop: 10,
+          borderColor: "black",
+          borderWidth: 3,
+          display: "flex",
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+        onPress={() => {
+          setOriginalPointing();
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+          }}
+        >
+          Calibr
         </Text>
       </TouchableOpacity>
 
