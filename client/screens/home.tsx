@@ -96,21 +96,50 @@ export default function HomeScreen() {
 
       <Connect />
 
-      <Picker
-              selectedValue={currentData.value}
-              onValueChange={(itemValue, itemIndex) => {
-                setCurrentData(DELAY_OPERATIONS[itemIndex]);
-                console.log(DELAY_OPERATIONS[itemIndex]);
-              }}
-            >
-              {DELAY_OPERATIONS.map((operation, index) => (
-                <Picker.Item
-                  key={index}
-                  label={operation.label}
-                  value={operation.value}
-                />
-              ))}
-            </Picker>
+      <View
+        style={{
+          display: "flex",
+          flexDirection: "row",
+
+          borderWidth: 3,
+          borderColor: "black",
+          borderRadius: 10,
+          marginTop: 20,
+          padding: 10,
+
+          justifyContent: "center",
+          alignItems: "center",
+        }}
+      >
+        <Text
+          style={{
+            fontSize: 20,
+            fontWeight: "bold",
+          }}
+        >
+          Delay
+        </Text>
+
+        <Picker
+          style={{
+            width: 200,
+            marginLeft: 10,
+          }}
+          selectedValue={currentData.value}
+          onValueChange={(itemValue, itemIndex) => {
+            setCurrentData(DELAY_OPERATIONS[itemIndex]);
+            console.log(DELAY_OPERATIONS[itemIndex]);
+          }}
+        >
+          {DELAY_OPERATIONS.map((operation, index) => (
+            <Picker.Item
+              key={index}
+              label={operation.label}
+              value={operation.value}
+            />
+          ))}
+        </Picker>
+      </View>
 
       <Text>{prediction === null ? "No prediction yet" : prediction}</Text>
     </View>
