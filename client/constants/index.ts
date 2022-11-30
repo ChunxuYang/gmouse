@@ -24,3 +24,22 @@ export const AVAILABLE_OPERATIONS = [
     value: 5,
   },
 ];
+
+export const DELAY_OPERATIONS = [
+  {
+    label: "250",
+    value: 250,
+  },
+  {
+    label: "500",
+    value: 500,
+  }, 
+  {
+    label: "750",
+    value: 750,
+  },
+  {
+    label: "1000",
+    value: 1000,
+  },
+];
