@@ -34,14 +34,12 @@ io.on("connection", (socket) => {
           robot.scrollMouse(1, 0);
           break;
         case "move":
-          console.log(data);
           const { x, y } = data.data;
           const currPos = robot.getMousePos();
           const dpi = robot.getScreenSize().height / 1080 / 2;
           robot.moveMouse(currPos.x + x * dpi, currPos.y + y * dpi);
 
         case "moveTo":
-          console.log(data);
           const dd = robot.getScreenSize().height;
           const yy = robot.getScreenSize().width;
           robot.moveMouse(data.data.x * yy, data.data.y * dd);

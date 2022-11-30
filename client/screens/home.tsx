@@ -199,7 +199,6 @@ export default function HomeScreen() {
           onValueChange={(itemValue, itemIndex) => {
             setCurrentData(DELAY_OPERATIONS[itemIndex]);
             model.setPredictionTimeout(DELAY_OPERATIONS[itemIndex].value);
-            console.log(DELAY_OPERATIONS[itemIndex]);
           }}
         >
           {DELAY_OPERATIONS.map((operation, index) => (
