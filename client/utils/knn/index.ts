@@ -20,6 +20,10 @@ class KNN {
   // ts variables
   private classifier: knnClassifier.KNNClassifier;
 
+  private prediction_available = true;
+
+  private timer: NodeJS.Timeout;
+
   constructor() {
     this.classifier = knnClassifier.create();
   }
@@ -54,7 +58,7 @@ class KNN {
     }
   }
 
-  // change one example prediction
+  // change one example label
   changeExample(data: BatchType, type: number, otherData: BatchType[]) {
     try {
       data = this.padding(data);
@@ -104,26 +108,39 @@ class KNN {
 
   // predict the gesture
   async predict(data: BatchType) {
-    console.log(data);
-    data = this.padding(data);
-    const tensor = tf.tensor2d(
-      data.map((d) => [d.ax, d.ay, d.az, d.gx, d.gy, d.gz])
-    );
+    if (this.prediction_available) {
+      this.prediction_available = false;
 
-    try {
-      const result = await this.classifier.predictClass(tensor);
-      console.log(this.classifier.getClassExampleCount());
-      console.log(result);
+      // turn the prediction available back to true after 100ms
+      this.timer = setTimeout(() => {
+        this.prediction_available = true;
+      }, 1000);
 
-      return {
-        type: result.label,
-        confidence: result.confidences[result.label],
-      };
-    } catch (e) {
-      console.log(e);
+      data = this.padding(data);
+      const tensor = tf.tensor2d(
+        data.map((d) => [d.ax, d.ay, d.az, d.gx, d.gy, d.gz])
+      );
+
+      try {
+        const result = await this.classifier.predictClass(tensor);
+        console.log(this.classifier.getClassExampleCount());
+        console.log(result);
+
+        return {
+          type: result.label,
+          confidence: result.confidences[result.label],
+        };
+      } catch (e) {
+        console.log(e);
+        return {
+          type: "error",
+          confidence: e.message,
+        };
+      }
+    } else {
       return {
         type: "error",
-        confidence: e.message,
+        confidence: "prediction not available",
       };
     }
   }
