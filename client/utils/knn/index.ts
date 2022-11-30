@@ -22,6 +22,8 @@ class KNN {
 
   private prediction_available = true;
 
+  private prediction_timeout = 1000;
+
   private timer: NodeJS.Timeout;
 
   constructor() {
@@ -114,7 +116,7 @@ class KNN {
       // turn the prediction available back to true after 100ms
       this.timer = setTimeout(() => {
         this.prediction_available = true;
-      }, 1000);
+      }, this.prediction_timeout);
 
       data = this.padding(data);
       const tensor = tf.tensor2d(
@@ -168,6 +170,10 @@ class KNN {
 
   clearClass(type: number) {
     this.classifier.clearClass(type);
+  }
+
+  setPredictionTimeout(timeout: number) {
+    this.prediction_timeout = timeout;
   }
 }
 
