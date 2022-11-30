@@ -1,9 +1,10 @@
 import React from "react";
 
 import { Button, Text, View, TouchableOpacity } from "react-native";
-import { AVAILABLE_OPERATIONS } from "../constants";
+import { AVAILABLE_OPERATIONS, DELAY_OPERATIONS } from "../constants";
 import { useSampleContext } from "../contexts/samples-context";
 import { BatchType } from "../types/data-type";
+import { Picker } from "@react-native-picker/picker";
 import model from "../utils/knn";
 import useIMU from "../utils/sensors";
 
@@ -15,6 +16,11 @@ export default function HomeScreen() {
   const [imuData, setImuData] = React.useState<BatchType>([]);
 
   const [prediction, setPrediction] = React.useState<string>("");
+
+  const [currentData, setCurrentData] = React.useState<{
+    label: string;
+    value: number;
+  }>(DELAY_OPERATIONS[0]);
 
   const { data, startSubscription, stopSubscription } = useIMU();
 
@@ -89,6 +95,22 @@ export default function HomeScreen() {
       </TouchableOpacity>
 
       <Connect />
+
+      <Picker
+              selectedValue={currentData.value}
+              onValueChange={(itemValue, itemIndex) => {
+                setCurrentData(DELAY_OPERATIONS[itemIndex]);
+                console.log(DELAY_OPERATIONS[itemIndex]);
+              }}
+            >
+              {DELAY_OPERATIONS.map((operation, index) => (
+                <Picker.Item
+                  key={index}
+                  label={operation.label}
+                  value={operation.value}
+                />
+              ))}
+            </Picker>
 
       <Text>{prediction === null ? "No prediction yet" : prediction}</Text>
     </View>
