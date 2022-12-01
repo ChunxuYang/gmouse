@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useCallback } from "react";
 
 import { Button, Text, View, TouchableOpacity } from "react-native";
 import { AVAILABLE_OPERATIONS, DELAY_OPERATIONS } from "../constants";
@@ -11,13 +11,14 @@ import useDeviceMotion from "../utils/sensors/device-motion";
 
 import Connect from "../components/connect";
 import { useConnectionContext } from "../contexts/connection-context";
+import { useFocusEffect } from "@react-navigation/native";
 
 export default function HomeScreen() {
   const { sampleSets } = useSampleContext();
   const [recording, setRecording] = React.useState(false);
 
   const [imuData, setImuData] = React.useState<BatchType>([]);
-  const [deviceMotionData, setDeviceMotionData] = React.useState<any>();
+  const [deviceMotionEnabled, setDeviceMotionEnabled] = React.useState(false);
 
   const [prediction, setPrediction] = React.useState<string>("");
 
@@ -29,7 +30,7 @@ export default function HomeScreen() {
   const { socket } = useConnectionContext();
 
   function emitOperation(operation: string, data?: any) {
-    if (socket !== null && socket.connected) {
+    if (socket !== null && socket.connected && deviceMotionEnabled) {
       socket.emit("operation", {
         type: operation,
         data,
@@ -47,12 +48,17 @@ export default function HomeScreen() {
     }
   }, [sampleSets]);
 
-  React.useEffect(() => {
-    startDeviceMotion();
-    return () => {
-      stopDeviceMotion();
-    };
-  }, []);
+  useFocusEffect(
+    React.useCallback(() => {
+      setDeviceMotionEnabled(true);
+      startDeviceMotion();
+
+      return () => {
+        setDeviceMotionEnabled(false);
+        stopDeviceMotion();
+      };
+    }, [])
+  );
 
   React.useEffect(() => {
     const { alpha, beta } = pointing;

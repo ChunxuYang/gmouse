@@ -1,5 +1,5 @@
 import * as React from "react";
-import { View, Text, StyleSheet } from "react-native";
+import { View, Text, StyleSheet, Dimensions } from "react-native";
 import { Gesture, GestureDetector } from "react-native-gesture-handler";
 import * as Haptics from "expo-haptics";
 import { useConnectionContext } from "../contexts/connection-context";
@@ -32,17 +32,20 @@ export default function TouchpadScreen() {
   const pan = Gesture.Pan()
     .maxPointers(1)
     .onUpdate((e) => {
-      const { translationX, translationY } = e;
+      const { velocityX, velocityY, translationX, translationY } = e;
+      // get the current screen width and height
       setCurrentCursor({
         x: translationX,
         y: translationY,
       });
 
+      console.log(translationX, translationY);
+
       // send data every 100ms
 
       emitOperation("move", {
-        x: translationX,
-        y: translationY,
+        x: velocityX,
+        y: velocityY,
       });
     });
 
